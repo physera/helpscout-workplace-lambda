@@ -6,15 +6,20 @@ import os
 
 from botocore.vendored import requests
 
+
 def lambda_handler(event, context):
-    post_headers = {"Authorization": "Bearer {}".format(os.environ['FB_API_TOKEN'])}
-    url = "https://graph.facebook.com/{}/feed".format(os.environ['FB_GROUP_ID'])
-    
+    post_headers = {
+        "Authorization": "Bearer {}".format(os.environ['FB_API_TOKEN']),
+    }
+    url = "https://graph.facebook.com/{}/feed".format(
+        os.environ['FB_GROUP_ID'],
+    )
+
     headers = event["headers"]
     body = event["body"]
-    
+
     helpscout_event = headers.get("X-HelpScout-Event")
-    
+
     computed_signature = base64.urlsafe_b64encode(
         hmac.new(
             bytes(os.environ["HELPSCOUT_KEY"], "UTF-8"),
@@ -24,14 +29,16 @@ def lambda_handler(event, context):
     )
 
     signature = headers.get("X-HelpScout-Signature")
-    
-    if computed_signature != bytes(signature.replace("+", "-").replace("/", "_"), "UTF-8"):
+    # Le sigh...
+    signature = signature.replace("+", "-").replace("/", "_")
+
+    if computed_signature != bytes(signature, "UTF-8"):
         print("Invalid signature: ", computed_signature, signature)
         return {"statusCode": 400, "body": "Invalid signature"}
 
     body = json.loads(body)
     print(body)
-    
+
     message = ""
     if helpscout_event == "convo.assigned":
         message = "A conversation was **assigned**."
@@ -52,18 +59,20 @@ def lambda_handler(event, context):
     else:
         print("Unsupported event type: ", helpscout_event)
         return {"statusCode": 200, "body": "Unsupported event"}
-    
-    conversation_link = "**Conversation**: [#{}](https://secure.helpscout.net/conversation/{})".format(
+
+    conversation_template = ("**Conversation**: [#{}]"
+                             "(https://secure.helpscout.net/conversation/{})")
+    conversation_link = conversation_template.format(
         body.get("number"),
         body.get("id"),
     )
-    
+
     customer = "**Customer**: {} {} ({})".format(
         body.get("customer").get("firstName"),
         body.get("customer").get("lastName"),
         body.get("customer").get("email"),
     )
-    
+
     details = "**Status**: {}\n\n**{}**\n\n{}".format(
         body.get("status"),
         body.get("subject"),
