@@ -73,7 +73,7 @@ def lambda_handler(event, context):
         body.get("customer").get("email"),
     )
 
-    details = "**Status**: {}\n\n**{}**\n\n{}".format(
+    details = "**Status**: {}\n\n**{}**\n\n```\n{}\n```".format(
         body.get("status"),
         body.get("subject"),
         body.get("preview"),
