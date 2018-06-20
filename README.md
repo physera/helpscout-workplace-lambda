@@ -1,4 +1,4 @@
-# Helpsout integration for Facebook Workplace via AWS Lambda
+# Helpscout integration for Facebook Workplace via AWS Lambda
 
 This repository contains an [AWS Lambda](https://aws.amazon.com/lambda/) function which will post [Helpscout](https://helpscout.net) updates to a [Facebook Workplace](https://workplace.facebook.com) group of your choosing.
 For an overview of the approach, see [this document](https://github.com/physera/workplace-lambda).
