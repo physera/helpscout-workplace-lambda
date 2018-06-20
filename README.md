@@ -9,8 +9,8 @@ To make this work, first follow the instructions [here](https://github.com/physe
 
 ### Set up AWS Lambda
 
-* In addition to the environment variables you've set following the document above, you'll also need to set:
-  * `HELPSCOUT_KEY` - Set this to a sufficiently long/complicated secret key you want to use to sign Helpscout requests. Take note of it
+In addition to the environment variables you've set following the document above, you'll also need to set:
+* `HELPSCOUT_KEY` - Set this to a sufficiently long/complicated secret key you want to use to sign Helpscout requests. Take note of it
 
 ### Set up callbacks on Helpscout
 
