@@ -7,6 +7,10 @@ import os
 from botocore.vendored import requests
 
 
+def quoteify(s):
+    return s.replace("\n", "\n>")
+
+
 def lambda_handler(event, context):
     post_headers = {
         "Authorization": "Bearer {}".format(os.environ['FB_API_TOKEN']),
@@ -73,10 +77,10 @@ def lambda_handler(event, context):
         body.get("customer").get("email"),
     )
 
-    details = "**Status**: {}\n\n**{}**\n\n```\n{}\n```".format(
+    details = "**Status**: {}\n\n**{}**\n\n>{}".format(
         body.get("status"),
         body.get("subject"),
-        body.get("preview"),
+        quoteify(body.get("preview")),
     )
 
     data = {
