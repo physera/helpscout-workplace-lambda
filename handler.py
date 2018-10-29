@@ -19,6 +19,10 @@ def lambda_handler(event, context):
         os.environ['FB_GROUP_ID'],
     )
 
+    sensitive_mailboxes = json.loads(
+        os.environ.get("SENSITIVE_MAILBOXES", "[]")
+    )
+
     headers = event["headers"]
     body = event["body"]
 
@@ -64,6 +68,8 @@ def lambda_handler(event, context):
         print("Unsupported event type: ", helpscout_event)
         return {"statusCode": 200, "body": "Unsupported event"}
 
+    sensitive = body.get("mailbox").get("id") in sensitive_mailboxes
+
     conversation_template = ("**Conversation**: [#{}]"
                              "(https://secure.helpscout.net/conversation/{})")
     conversation_link = conversation_template.format(
@@ -71,21 +77,33 @@ def lambda_handler(event, context):
         body.get("id"),
     )
 
-    customer = "**Customer**: {} {} ({})".format(
-        body.get("customer").get("firstName"),
-        body.get("customer").get("lastName"),
-        body.get("customer").get("email"),
-    )
-
-    details = "**Status**: {}\n\n**{}**\n\n>{}".format(
-        body.get("status"),
-        body.get("subject"),
-        quoteify(body.get("preview")),
-    )
+    lines = [message, conversation_link]
+    if sensitive:
+        lines.append(
+            "**Status**: {}\n\n**{}**".format(
+                body.get("status"),
+                "A new task was created",
+            )
+        )
+    else:
+        lines.append(
+            "**Customer**: {} {} ({})".format(
+                body.get("customer").get("firstName"),
+                body.get("customer").get("lastName"),
+                body.get("customer").get("email"),
+            )
+        )
+        lines.append(
+            "**Status**: {}\n\n**{}**\n\n>{}\n".format(
+                body.get("status"),
+                body.get("subject"),
+                quoteify(body.get("preview")),
+            )
+        )
 
     data = {
         'formatting': 'MARKDOWN',
-        'message': '\n'.join([message, conversation_link, customer, details])
+        'message': '\n'.join(lines)
     }
     resp = requests.post(url, headers=post_headers, data=data).json()
     print(resp)
