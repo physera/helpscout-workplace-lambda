@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         os.environ['FB_GROUP_ID'],
     )
 
-    phi_mailboxes = [163030]
+    sensitive_mailboxes = json.loads(os.environ['SENSITIVE_MAILBOXES'])
 
     headers = event["headers"]
     body = event["body"]
@@ -66,7 +66,7 @@ def lambda_handler(event, context):
         print("Unsupported event type: ", helpscout_event)
         return {"statusCode": 200, "body": "Unsupported event"}
 
-    has_phi = body.get("mailbox").get("id") in phi_mailboxes
+    sensitive = body.get("mailbox").get("id") in sensitive_mailboxes
 
     conversation_template = ("**Conversation**: [#{}]"
                              "(https://secure.helpscout.net/conversation/{})")
@@ -76,7 +76,7 @@ def lambda_handler(event, context):
     )
 
     lines = [message, conversation_link]
-    if has_phi:
+    if sensitive:
         lines.append(
             "**Status**: {}\n\n**{}**".format(
                 body.get("status"),
