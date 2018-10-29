@@ -101,7 +101,7 @@ def lambda_handler(event, context):
 
     data = {
         'formatting': 'MARKDOWN',
-        'message': '\n'.join([lines])
+        'message': '\n'.join(lines)
     }
     resp = requests.post(url, headers=post_headers, data=data).json()
     print(resp)
