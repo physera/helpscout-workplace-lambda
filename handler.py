@@ -19,7 +19,9 @@ def lambda_handler(event, context):
         os.environ['FB_GROUP_ID'],
     )
 
-    sensitive_mailboxes = json.loads(os.environ['SENSITIVE_MAILBOXES'])
+    sensitive_mailboxes = json.loads(
+        os.environ.get("SENSITIVE_MAILBOXES", "[]")
+    )
 
     headers = event["headers"]
     body = event["body"]
